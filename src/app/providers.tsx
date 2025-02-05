@@ -17,11 +17,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const resp = await ApiService.post(API.user.login, {
-        Email: email,
-        Password: password,
-      });
+      const resp = await ApiService.post(API.user.login, { Email: email, Password: password });
       console.log(resp);
+      setIsAuthenticated(true);
     } catch (error) {
       console.log(error);
     }
