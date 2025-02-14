@@ -105,14 +105,16 @@ export default function AuthPage() {
     }
   };
 
-  const handleForgotPassword = async () => {
+  const handleForgotPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
     try {
       const response = await ApiService.post(API.auth.forgotPassword);
       if (response.status === 200) {
-        alert("Password reset email sent");
+        console.log(response.data);
       }
     } catch (error) {
       console.error("Forgot password error:", error);
+      // alert("An error occurred while processing your request");
     }
   };
 
@@ -130,7 +132,7 @@ export default function AuthPage() {
             {isSignup ? "Create an account" : "Welcome back"}
           </h2>
           <p className="text-gray-600 mb-6">Please enter your details</p>
-          <form onSubmit={form.handleSubmit(handleSubmit)}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             {isSignup && (
               <div className="mb-4">
                 <Label htmlFor="firstName">First Name</Label>
@@ -233,7 +235,8 @@ export default function AuthPage() {
             <div className="flex justify-end items-center mb-4">
               {!isSignup && (
                 <button
-                  onClick={() => handleForgotPassword}
+                  type="button"
+                  onClick={handleForgotPassword}
                   className="text-sm text-purple-600 hover:underline"
                 >
                   forgot password?

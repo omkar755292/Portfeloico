@@ -48,7 +48,9 @@ const API_ENDPOINTS = {
     sendOTP: "/auth/send-otp",
     verifyOTP: "/auth/verify-otp",
     refreshToken: "/auth/refresh-token",
-    forgotPassword: "/auth/change-password",
+    forgotPassword: "/auth/forgot-password",
+    changePassword: "/auth/change-password",
+    getUser: "/auth/user",
   },
   user: {},
 } as const;
