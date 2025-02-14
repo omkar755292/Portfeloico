@@ -1,7 +1,7 @@
-import LoginPage from "@/pages/LoginPage";
+import AuthPage from "@/pages/AuthPage";
 
 const page = () => {
-  return <LoginPage />;
+  return <AuthPage />;
 };
 
 export default page;

@@ -42,9 +42,13 @@ const getEnvironment = (): EnvType => {
 export const environment: EnvType = getEnvironment();
 
 const API_ENDPOINTS = {
-  user: {
+  auth:{
     login: "/auth/login",
     register: "/auth/register",
+    sendOTP: "/auth/send-otp",
+    verifyOTP: "/auth/verify-otp",
+  },
+  user: {
   },
 } as const;
 
