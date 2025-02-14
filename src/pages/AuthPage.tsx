@@ -23,15 +23,21 @@ const signupSchema = z.object({
   MiddleName: z.string().min(2, "Name must be at least 2 characters"),
   LastName: z.string().min(2, "Name must be at least 2 characters"),
   Email: z.string().email("Please enter a valid email address"),
-  Password: z.string()
+  Password: z
+    .string()
     .min(8, "Password must be at least 8 characters")
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
     .regex(/[0-9]/, "Password must contain at least one number"),
-  PhoneNo: z.string().regex(/^[0-9]{10}$/, "Please enter a valid 10-digit phone number").optional(),
-  OTP: z.string().regex(/^[0-9]{6}$/, "Please enter a valid 6-digit OTP").optional(),
+  PhoneNo: z
+    .string()
+    .regex(/^[0-9]{10}$/, "Please enter a valid 10-digit phone number")
+    .optional(),
+  OTP: z
+    .string()
+    .regex(/^[0-9]{6}$/, "Please enter a valid 6-digit OTP")
+    .optional(),
 });
-
 
 export default function AuthPage() {
   const [isSignup, setIsSignup] = useState(false);
@@ -99,6 +105,17 @@ export default function AuthPage() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    try {
+      const response = await ApiService.post(API.auth.forgotPassword);
+      if (response.status === 200) {
+        alert("Password reset email sent");
+      }
+    } catch (error) {
+      console.error("Forgot password error:", error);
+    }
+  };
+
   return (
     <div className="flex h-screen w-full items-center justify-center bg-gray-100 overflow-y-hidden">
       {/* Brand Logo */}
@@ -141,9 +158,7 @@ export default function AuthPage() {
                 {...form.register("Email")}
               />
               {form.formState.errors.Email && (
-                <p className="text-sm text-red-500 mt-1">
-                  {form.formState.errors.Email.message}
-                </p>
+                <p className="text-sm text-red-500 mt-1">{form.formState.errors.Email.message}</p>
               )}
             </div>
             <div className="mb-4">
@@ -211,16 +226,14 @@ export default function AuthPage() {
                   </Button>
                 </div>
                 {form.formState.errors.OTP && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {form.formState.errors.OTP.message}
-                  </p>
+                  <p className="text-sm text-red-500 mt-1">{form.formState.errors.OTP.message}</p>
                 )}
               </div>
             )}
             <div className="flex justify-end items-center mb-4">
               {!isSignup && (
                 <button
-                  onClick={() => setOTPLogin(true)}
+                  onClick={() => handleForgotPassword}
                   className="text-sm text-purple-600 hover:underline"
                 >
                   forgot password?
