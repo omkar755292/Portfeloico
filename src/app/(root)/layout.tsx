@@ -1,22 +1,26 @@
 "use client";
 
-import { useAuth } from "../providers";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
+import { userSelector } from "@/store/slices/userSlice";
+import { useSelector } from "react-redux";
+import { logout, verifyUser } from "@/store/slices/userSlice";
+import { useAppDispatch } from "@/hooks/providers";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useSelector(userSelector);
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/");
+      dispatch(verifyUser());
     }
-  }, [isAuthenticated, router]);
+  }, []);
 
-  if (!isAuthenticated) {
-    return null;
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
   return (

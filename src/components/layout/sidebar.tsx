@@ -6,7 +6,9 @@ import { LayoutDashboard, Users, Settings, Menu, X, LogOut } from "lucide-react"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { useAuth } from "@/app/providers";
+import { useDispatch } from "react-redux";
+import { logout } from "@/store/slices/userSlice";
+import { AppDispatch } from "@/store/store";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -17,7 +19,11 @@ const menuItems = [
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return (
     <>
@@ -63,7 +69,7 @@ export function Sidebar() {
           </nav>
 
           <div className="p-6">
-            <Button variant="ghost" className="w-full justify-start gap-2" onClick={logout}>
+            <Button variant="ghost" className="w-full justify-start gap-2" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
               Logout
             </Button>

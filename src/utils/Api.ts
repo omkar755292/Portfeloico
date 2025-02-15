@@ -1,3 +1,5 @@
+import { verify } from "crypto";
+
 const ENV = {
   PROD: "PROD",
   DEV: "DEV",
@@ -50,7 +52,8 @@ const API_ENDPOINTS = {
     refreshToken: "/auth/refresh-token",
     forgotPassword: "/auth/forgot-password",
     changePassword: "/auth/change-password",
-    getUser: "/auth/user",
+    logout: "/auth/logout",
+    verify: "/auth/user",
   },
   user: {},
 } as const;

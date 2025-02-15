@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,9 @@ import { API } from "@/utils/Api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useSelector, useDispatch } from "react-redux";
+import { loginUser, userSelector } from "@/store/slices/userSlice";
+import { AppDispatch } from "@/store/store";
 
 const loginSchema = z.object({
   Email: z.string().email("Please enter a valid email address"),
@@ -40,11 +43,13 @@ const signupSchema = z.object({
 });
 
 export default function AuthPage() {
+  const { isAuthenticated, isLoading } = useSelector(userSelector);
   const [isSignup, setIsSignup] = useState(false);
   const [OTPLogin, setOTPLogin] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
   const form = useForm({
     resolver: zodResolver(isSignup ? signupSchema : loginSchema),
@@ -96,14 +101,22 @@ export default function AuthPage() {
 
   const handleSubmit = async (data: z.infer<typeof loginSchema> | z.infer<typeof signupSchema>) => {
     try {
-      const response = await ApiService.post(isSignup ? API.auth.register : API.auth.login, data);
-      if (response.status === 200) {
-        router.push("/dashboard");
+      if (isSignup) {
+        console.log(data);
+      } else {
+        const result = await dispatch(loginUser(data)).unwrap();
+        if (result) {
+          router.push("/");
+        }
       }
     } catch (error) {
       console.error("Auth error:", error);
     }
   };
+
+  useEffect(() => {
+    isAuthenticated && router.push("/");
+  }, [isAuthenticated]);
 
   const handleForgotPassword = async (e: React.MouseEvent) => {
     e.preventDefault();
