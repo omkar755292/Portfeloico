@@ -53,7 +53,7 @@ const API_ENDPOINTS = {
     forgotPassword: "/auth/forgot-password",
     changePassword: "/auth/change-password",
     logout: "/auth/logout",
-    verify: "/auth/user",
+    verify: "/auth/verify-user",
   },
 } as const;
 

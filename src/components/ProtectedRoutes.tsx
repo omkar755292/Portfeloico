@@ -1,48 +1,52 @@
-import { useAppSelector } from "@/hooks/providers";
-import { userSelector } from "@/store/slices/userSlice";
+import { useAppSelector, useAppDispatch } from "@/hooks/providers";
+import { userSelector, verifyToken } from "@/store/slices/userSlice";
 import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
+import Loading from "./Loading";
 
 export const ProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAppSelector(userSelector);
-  const router = useRouter();
+    const { isAuthenticated, isLoading } = useAppSelector(userSelector);
+    const dispatch = useAppDispatch();
+    const router = useRouter();
 
-  if (!isAuthenticated) {
-    router.replace("/login");
-  }
+    useEffect(() => {
+        dispatch(verifyToken());
+    }, [dispatch]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          <p className="text-gray-500">Verifying authentication...</p>
-        </div>
-      </div>
-    );
-  }
+    useEffect(() => {
+        if (!isAuthenticated && !isLoading) {
+            router.replace("/login");
+        }
+    }, [isAuthenticated, isLoading, router]);
 
-  return children;
+    if (isLoading) {
+        return (
+            <Loading />
+        );
+    }
+
+    return children;
 };
 
 export const AuthProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAppSelector(userSelector);
-  const router = useRouter();
-  const pathname = usePathname();
+    const { isAuthenticated, isLoading } = useAppSelector(userSelector);
+    const dispatch = useAppDispatch();
+    const router = useRouter();
+    const pathname = usePathname();
 
-  if (isAuthenticated && pathname === "/login") {
-    router.replace("/");
-  }
+    useEffect(() => {
+        dispatch(verifyToken());
+    }, [dispatch]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          <p className="text-gray-500">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
+    useEffect(() => {
+        if (isAuthenticated && !isLoading && pathname === "/login") {
+            router.replace("/");
+        }
+    }, [isAuthenticated, isLoading, pathname, router]);
 
-  return children;
+    if (isLoading) {
+        <Loading />
+    }
+
+    return children;
 };
