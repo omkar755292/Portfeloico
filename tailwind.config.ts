@@ -19,6 +19,13 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        myprimary: "#60A5FA", // Soft Blue (Main UI elements, buttons)
+        mysecondary: "#93C5FD", // Lighter Blue (Background highlights)
+        mylight: "#F3F4F6", // Light Gray (Card backgrounds, soft UI)
+        mydark: "#1D4ED8", // Dark Blue (Headings, icons, text)
+        mymuted: "#4B5563", // Secondary Text Color (Descriptions)
+        myborder: "#D1D5DB", // Border color
+        myhover: "#3B82F6",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

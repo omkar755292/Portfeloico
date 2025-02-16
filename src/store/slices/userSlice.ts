@@ -24,7 +24,7 @@ const initialState: AuthState = {
 
 // Async thunks
 export const loginUser = createAsyncThunk(
-    "user/login",
+    "auth/login",
     async (credentials: LoginCredentials, { rejectWithValue }) => {
         try {
             const response = await ApiService.post<{ user: IUser }>(
@@ -41,7 +41,7 @@ export const loginUser = createAsyncThunk(
 );
 
 export const logout = createAsyncThunk(
-    "user/logout",
+    "auth/logout",
     async (_, { rejectWithValue }) => {
         try {
             await ApiService.post(API.auth.logout);
@@ -52,20 +52,19 @@ export const logout = createAsyncThunk(
     }
 );
 
-export const verifyUser = createAsyncThunk<IUser | null>(
-    "user/verify",
+export const verifyToken = createAsyncThunk(
+    "auth/verifyToken",
     async (_, { rejectWithValue }) => {
         try {
-            const { data } = await ApiService.get<IUser>(API.auth.verify);
-            if (data) {
-                return data;
-            }
-            return rejectWithValue(null);
+            const response = await ApiService.post<{ user: IUser }>(
+                API.auth.verify
+            );
+            return response.data;
         } catch (error: any) {
-            return rejectWithValue(null);
+            return rejectWithValue(error.response?.data?.error || "Refresh failed");
         }
     }
-);
+)
 
 const userSlice = createSlice({
     name: "user",
@@ -109,20 +108,20 @@ const userSlice = createSlice({
                 state.error = action.payload as string;
             });
 
-        // Verify
+        // Refresh
         builder
-            .addCase(verifyUser.pending, (state) => {
+            .addCase(verifyToken.pending, (state) => {
                 state.isLoading = true;
             })
-            .addCase(verifyUser.fulfilled, (state, action) => {
+            .addCase(verifyToken.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
-                state.user = action.payload;
+                state.user = action.payload.user;
+                state.error = null;
             })
-            .addCase(verifyUser.rejected, (state) => {
+            .addCase(verifyToken.rejected, (state, action) => {
                 state.isLoading = false;
-                state.isAuthenticated = false;
-                state.user = null;
+                state.error = action.payload as string;
             });
     },
 });

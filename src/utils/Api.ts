@@ -55,7 +55,6 @@ const API_ENDPOINTS = {
     logout: "/auth/logout",
     verify: "/auth/user",
   },
-  user: {},
 } as const;
 
 export const API = {

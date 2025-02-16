@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,9 +12,8 @@ import { API } from "@/utils/Api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useSelector, useDispatch } from "react-redux";
-import { loginUser, userSelector } from "@/store/slices/userSlice";
-import { AppDispatch } from "@/store/store";
+import { useAppSelector } from "@/hooks/providers";
+import { userSelector } from "@/store/slices/userSlice";
 
 const loginSchema = z.object({
   Email: z.string().email("Please enter a valid email address"),
@@ -43,13 +42,12 @@ const signupSchema = z.object({
 });
 
 export default function AuthPage() {
-  const { isAuthenticated, isLoading } = useSelector(userSelector);
+  const { isAuthenticated, isLoading } = useAppSelector(userSelector)
   const [isSignup, setIsSignup] = useState(false);
   const [OTPLogin, setOTPLogin] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const router = useRouter();
-  const dispatch = useDispatch<AppDispatch>();
 
   const form = useForm({
     resolver: zodResolver(isSignup ? signupSchema : loginSchema),
@@ -87,13 +85,10 @@ export default function AuthPage() {
       return;
     }
     try {
-      const response = await ApiService.post(API.auth.verifyOTP, { otp });
-      if (response.status === 200) {
-        setPhoneVerified(true);
-        setShowOTP(false);
-      } else {
-        alert("Invalid OTP, please try again.");
-      }
+
+      setPhoneVerified(true);
+      setShowOTP(false);
+
     } catch (error) {
       console.error("OTP verification failed:", error);
     }
@@ -102,21 +97,22 @@ export default function AuthPage() {
   const handleSubmit = async (data: z.infer<typeof loginSchema> | z.infer<typeof signupSchema>) => {
     try {
       if (isSignup) {
-        console.log(data);
+        const response = await ApiService.post(API.auth.register, data);
+        if (response.status === 200) {
+          alert("Registration successful");
+        }
       } else {
-        const result = await dispatch(loginUser(data)).unwrap();
-        if (result) {
-          router.push("/");
+        const response = await ApiService.post(API.auth.login, data);
+        if (response.status === 200) {
+          console.log('respons', response.status);
+        } else {
+          console.log('error', response.status);
         }
       }
     } catch (error) {
       console.error("Auth error:", error);
     }
   };
-
-  useEffect(() => {
-    isAuthenticated && router.push("/");
-  }, [isAuthenticated]);
 
   const handleForgotPassword = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -134,12 +130,16 @@ export default function AuthPage() {
   return (
     <div className="flex h-screen w-full items-center justify-center bg-gray-100 overflow-y-hidden">
       {/* Brand Logo */}
-      <div className="absolute top-4 left-4 flex items-end">
-        <img src="/logo.svg" alt="Brand Logo" className="h-10" />
+      {/* <div className="absolute top-0 left-0 flex items-center">
+        <img src="/gemini-logo2-15.jpg" alt="Brand Logo" className="h-[80px] w-[80px]" />
         <span className="text-l ml-1 font-bold">Admin Panel</span>
-      </div>
+      </div> */}
       <div className="w-full h-screen flex bg-white shadow-lg rounded-lg">
         {/* Left Side */}
+        <div className="w-1/2 bg-white flex items-center justify-center">
+          <img src="/p1.jpg" alt="Login Illustration" className="img-fluid object-cover w-full h-full" />
+        </div>
+        {/* Right Side */}
         <div className="w-1/2 px-20 flex flex-col justify-center overflow-y-auto hide-scrollbar">
           <h2 className="text-2xl font-bold mb-6">
             {isSignup ? "Create an account" : "Welcome back"}
@@ -207,7 +207,7 @@ export default function AuthPage() {
                     type="button"
                     disabled={showOTP || phoneVerified}
                     variant="outline"
-                    className="mt-1"
+                    className="mt-1 text-sm text-gray-600"
                     onClick={handleSendOTP}
                   >
                     {phoneVerified ? "Verified" : "Send OTP"}
@@ -234,7 +234,7 @@ export default function AuthPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="mt-1"
+                    className="mt-1 text-sm"
                     onClick={handleVerifyOTP}
                   >
                     Verify OTP
@@ -250,37 +250,33 @@ export default function AuthPage() {
                 <button
                   type="button"
                   onClick={handleForgotPassword}
-                  className="text-sm text-purple-600 hover:underline"
+                  className="text-sm underline text-blue-600 hover:text-blue-800"
                 >
                   forgot password?
                 </button>
               )}
             </div>
 
-            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
+            <Button type="submit" className="w-full bg-primary">
               {isSignup ? "Sign up" : "Sign in"}
             </Button>
           </form>
-          <div className="mt-4 text-center">
-            <Button variant="outline" className="w-full flex items-center justify-center">
-              <FcGoogle className="mr-2 text-lg" />{" "}
+          <div className="mt-4 text-center text-gray-600">
+            <Button variant="outline" className="w-full items-center justify-center">
+              <FcGoogle className="mr-2" />{" "}
               {isSignup ? "Sign up with Google" : "Sign in with Google"}
             </Button>
           </div>
 
-          <p className="text-center text-sm text-gray-600 mt-4">
+          <p className="text-center text-sm mt-4">
             {isSignup ? "Already have an account? " : "Don’t have an account? "}
             <button
               onClick={() => setIsSignup(!isSignup)}
-              className="text-purple-600 hover:underline"
+              className="text-blue-600 hover:text-blue-800 underline"
             >
               {isSignup ? "Sign in" : "Sign up"}
             </button>
           </p>
-        </div>
-        {/* Right Side */}
-        <div className="w-1/2 bg-purple-100 flex items-center justify-center">
-          <img src="/loginpage.png" alt="Login Illustration" className="" />
         </div>
       </div>
     </div>
