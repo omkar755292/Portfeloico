@@ -14,9 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAppDispatch, useAppSelector } from "@/hooks/providers";
 import { userLogin, userSelector } from "@/store/slices/userSlice";
-import Loading from "@/components/Loading";
-import Error from "@/components/Error";
-import { error } from "console";
+import Error from "@/components/custom/Error";
 
 const loginSchema = z.object({
   Email: z.string().email("Please enter a valid email address"),

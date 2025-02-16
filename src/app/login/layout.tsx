@@ -1,13 +1,13 @@
 "use client";
 
-import { AuthProtectedRoutes } from "@/components/ProtectedRoutes";
+import AuthProvider from "@/components/providers/AuthProvider";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
-        <AuthProtectedRoutes>
+        <AuthProvider>
             <div className="min-h-screen bg-background">
                 <main>{children}</main>
             </div>
-        </AuthProtectedRoutes>
+        </AuthProvider>
     );
 }
