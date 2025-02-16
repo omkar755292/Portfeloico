@@ -15,6 +15,8 @@ import * as z from "zod";
 import { useAppDispatch, useAppSelector } from "@/hooks/providers";
 import { userLogin, userSelector } from "@/store/slices/userSlice";
 import Loading from "@/components/Loading";
+import Error from "@/components/Error";
+import { error } from "console";
 
 const loginSchema = z.object({
   Email: z.string().email("Please enter a valid email address"),
@@ -43,12 +45,12 @@ const signupSchema = z.object({
 });
 
 export default function AuthPage() {
-  const { isAuthenticated, isLoading } = useAppSelector(userSelector);
+  const { isLoading, error } = useAppSelector(userSelector);
+  const dispatch = useAppDispatch();
   const [isSignup, setIsSignup] = useState(false);
   const [OTPLogin, setOTPLogin] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
-  const dispatch = useAppDispatch();
   const router = useRouter();
 
   const form = useForm({
@@ -98,8 +100,7 @@ export default function AuthPage() {
     try {
       if (isSignup) {
       } else {
-        const response = await dispatch(userLogin(data))
-          .unwrap()
+        const response = await dispatch(userLogin(data)).unwrap();
         if (response.status === 200) {
           router.push("/");
         }
@@ -122,17 +123,8 @@ export default function AuthPage() {
     }
   };
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
   return (
     <div className="flex h-screen w-full items-center justify-center bg-gray-100 overflow-y-hidden">
-      {/* Brand Logo */}
-      {/* <div className="absolute top-0 left-0 flex items-center">
-        <img src="/gemini-logo2-15.jpg" alt="Brand Logo" className="h-[80px] w-[80px]" />
-        <span className="text-l ml-1 font-bold">Admin Panel</span>
-      </div> */}
       <div className="w-full h-screen flex bg-white shadow-lg rounded-lg">
         {/* Left Side */}
         <div className="w-1/2 bg-white flex items-center justify-center">
@@ -144,6 +136,7 @@ export default function AuthPage() {
         </div>
         {/* Right Side */}
         <div className="w-1/2 px-20 flex flex-col justify-center overflow-y-auto hide-scrollbar">
+          {error && <Error message={error} />}
           <h2 className="text-2xl font-bold mb-6">
             {isSignup ? "Create an account" : "Welcome back"}
           </h2>
@@ -260,12 +253,16 @@ export default function AuthPage() {
               )}
             </div>
 
-            <Button type="submit" className="w-full bg-primary">
-              {isSignup ? "Sign up" : "Sign in"}
+            <Button type="submit" disabled={isLoading} className="w-full bg-primary">
+              {isLoading ? "Loading..." : isSignup ? "Sign up" : "Sign in"}
             </Button>
           </form>
           <div className="mt-4 text-center text-gray-600">
-            <Button variant="outline" className="w-full items-center justify-center">
+            <Button
+              variant="outline"
+              disabled={isLoading}
+              className="w-full items-center justify-center"
+            >
               <FcGoogle className="mr-2" />{" "}
               {isSignup ? "Sign up with Google" : "Sign in with Google"}
             </Button>
