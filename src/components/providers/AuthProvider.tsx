@@ -1,71 +1,47 @@
+"use client";
+
 import { useAppDispatch, useAppSelector } from "@/hooks/providers";
 import { userSelector, verifyToken } from "@/store/slices/userSlice";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Loading from "../custom/Loading";
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const { isAuthenticated, isLoading } = useAppSelector(userSelector);
-    const [isInitializing, setIsInitializing] = useState(true);
-    const router = useRouter();
-    const pathname = usePathname();
-    const dispatch = useAppDispatch();
-    const verificationAttempted = useRef(false);
+  const { isAuthenticated, isLoading } = useAppSelector(userSelector);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const pathname = usePathname();
+  const verificationAttempted = useRef(false);
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
-    useEffect(() => {
-        const initAuth = async () => {
-            // Skip if verification was already attempted
-            if (verificationAttempted.current) {
-                setIsInitializing(false);
-                return;
-            }
+  useEffect(() => {
+    const initAuth = async () => {
+      if (verificationAttempted.current) return;
+      verificationAttempted.current = true;
 
-            try {
-                // Mark that we've attempted verification
-                verificationAttempted.current = true;
+      try {
+        await dispatch(verifyToken()).unwrap();
+        setHasCheckedAuth(true);
+      } catch {
+        setHasCheckedAuth(true);
+        if (pathname !== "/login") router.push("/login");
+      }
+    };
 
-                // Verify token on initial load and set up periodic verification
-                await dispatch(verifyToken()).unwrap();
+    initAuth();
+  }, [dispatch, pathname, router]);
 
-                // Set up periodic verification every 5 minutes
-                const intervalId = setInterval(async () => {
-                    try {
-                        await dispatch(verifyToken()).unwrap();
-                    } catch (error) {
-                        // If verification fails, clear interval and redirect to login
-                        clearInterval(intervalId);
-                        if (pathname !== "/login") {
-                            router.replace("/login");
-                        }
-                    }
-                }, 5 * 1000); // 5 seconds
-
-                // Cleanup interval on unmount
-                return () => clearInterval(intervalId);
-            } catch (error) {
-                // Handle initial verification failure
-                if (pathname !== "/login") {
-                    router.replace("/login");
-                }
-            } finally {
-                setIsInitializing(false);
-            }
-        };
-        initAuth();
-    }, [dispatch]);
-
-    useEffect(() => {
-        if (!isInitializing && isAuthenticated && pathname === "/login") {
-            router.replace("/");
-        }
-    }, [isAuthenticated, isInitializing, pathname, router]);
-
-    // Show loading during initial auth check or when explicitly loading
-    if (isInitializing || isLoading) {
-        return <Loading />;
+  useEffect(() => {
+    if (!isLoading && hasCheckedAuth) {
+      if (!isAuthenticated && pathname !== "/login") {
+        router.push("/login");
+      } else if (isAuthenticated && pathname === "/login") {
+        router.push("/");
+      }
     }
+  }, [isAuthenticated, isLoading, hasCheckedAuth, pathname, router]);
 
-    return children;
+  return children;
 };
 
 export default AuthProvider;
