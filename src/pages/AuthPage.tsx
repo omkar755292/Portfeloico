@@ -104,7 +104,7 @@ export default function AuthPage() {
         }
       }
     } catch (error: any) {
-      console.error("Auth error:", error.response?.data || error.message);
+      console.error("Auth error:", error);
     }
   };
 
@@ -162,6 +162,7 @@ export default function AuthPage() {
               <Input
                 id="email"
                 type="email"
+                disabled={isLoading}
                 placeholder="Enter your email"
                 className="mt-1 w-full"
                 {...form.register("Email")}
@@ -174,6 +175,7 @@ export default function AuthPage() {
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
+                disabled={isLoading}
                 type="password"
                 placeholder="Enter your password"
                 className="mt-1 w-full"
