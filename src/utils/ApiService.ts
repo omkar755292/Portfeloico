@@ -4,8 +4,6 @@ import { API } from "./Api";
 
 class ApiService {
   private service: AxiosInstance;
-  private isRefreshing = false;
-  private failedQueue: any[] = [];
 
   constructor() {
     this.service = axios.create({
@@ -21,66 +19,18 @@ class ApiService {
       },
     });
 
-    this.service.interceptors.response.use(this.handleSuccess, async (error: AxiosError) => {
-      const originalRequest = error.config!;
-
-      // If error is not 401 or request has already been retried
-      if (error.response?.status !== 401 || (originalRequest as any)._retry) {
-        return Promise.reject(error);
-      }
-
-      if (this.isRefreshing) {
-        return new Promise((resolve) => {
-          this.failedQueue.push({ resolve, reject: (err: any) => Promise.reject(err) });
-        })
-          .then((token) => {
-            return this.service(originalRequest);
-          })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
-      }
-
-      (originalRequest as any)._retry = true;
-      this.isRefreshing = true;
-
-      return new Promise((resolve, reject) => {
-        this.service
-          .post(API.auth.refreshToken)
-          .then(() => {
-            this.processQueue(null);
-            resolve(this.service(originalRequest));
-          })
-          .catch((err) => {
-            this.processQueue(err);
-            reject(err);
-          })
-          .finally(() => {
-            this.isRefreshing = false;
-          });
-      });
-    });
+    this.service.interceptors.response.use(this.handleSuccess, (error: AxiosError) =>
+      this.handleError(error)
+    );
   }
 
-  private processQueue(error: any) {
-    this.failedQueue.forEach((prom) => {
-      if (error) {
-        prom.reject(error);
-      } else {
-        prom.resolve();
-      }
-    });
-    this.failedQueue = [];
-  }
-
-  private handleSuccess<T>(response: AxiosResponse<T>): T {
-    return response.data;
+  private handleSuccess<T>(response: AxiosResponse<T>): AxiosResponse<T> {
+    return response;
   }
 
   private async handleError(error: AxiosError) {
     if (error.response?.status === 401) {
-      // Redirect to login if refresh token fails
-      this.redirectTo("/");
+      console.log("Api error", error);
     }
     return Promise.reject(error);
   }
@@ -101,8 +51,21 @@ class ApiService {
     return this.service.put<T>(url, data);
   }
 
+  public patch<T>(url: string, data?: object) {
+    return this.service.patch<T>(url, data);
+  }
+
   public delete<T>(url: string) {
     return this.service.delete<T>(url);
+  }
+
+  public setToken(token: string) {
+    this.service.interceptors.request.use((config) => {
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
   }
 }
 

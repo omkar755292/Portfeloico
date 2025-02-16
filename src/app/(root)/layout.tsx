@@ -3,11 +3,7 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { ProtectedRoutes } from "@/components/ProtectedRoutes";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoutes>
       <div className="min-h-screen bg-background">

@@ -11,9 +11,9 @@ import { logout } from "@/store/slices/userSlice";
 import { AppDispatch } from "@/store/store";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: Users, label: "Users", href: "/dashboard/users" },
-  { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+  { icon: LayoutDashboard, label: "Dashboard", href: "/" },
+  { icon: Users, label: "Users", href: "/users" },
+  { icon: Settings, label: "Settings", href: "/settings" },
 ];
 
 export function Sidebar() {

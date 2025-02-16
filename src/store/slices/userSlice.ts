@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import ApiService from "@/utils/ApiService";
 import { API } from "@/utils/Api";
 import { RootState } from "../store";
+import { AxiosResponse } from "axios";
 
 interface LoginCredentials {
     Email: string;
@@ -23,48 +24,35 @@ const initialState: AuthState = {
 };
 
 // Async thunks
-export const loginUser = createAsyncThunk(
+export const userLogin = createAsyncThunk<AxiosResponse<{ user: IUser }>, LoginCredentials>(
     "auth/login",
     async (credentials: LoginCredentials, { rejectWithValue }) => {
         try {
-            const response = await ApiService.post<{ user: IUser }>(
-                API.auth.login,
-                credentials
-            );
-            return response.data;
+            const response = await ApiService.post<{ user: IUser }>(API.auth.login, credentials);
+            return response;
         } catch (error: any) {
-            return rejectWithValue(
-                error.response?.data?.error || "Invalid email or password"
-            );
+            return rejectWithValue(error.response?.data?.error || "Invalid email or password");
         }
     }
 );
 
-export const logout = createAsyncThunk(
-    "auth/logout",
-    async (_, { rejectWithValue }) => {
-        try {
-            await ApiService.post(API.auth.logout);
-            return null;
-        } catch (error: any) {
-            return rejectWithValue(error.response?.data?.error || "Logout failed");
-        }
+export const logout = createAsyncThunk("auth/logout", async (_, { rejectWithValue }) => {
+    try {
+        await ApiService.post(API.auth.logout);
+        return null;
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data?.error || "Logout failed");
     }
-);
+});
 
-export const verifyToken = createAsyncThunk(
-    "auth/verifyToken",
-    async (_, { rejectWithValue }) => {
-        try {
-            const response = await ApiService.post<{ user: IUser }>(
-                API.auth.verify
-            );
-            return response.data;
-        } catch (error: any) {
-            return rejectWithValue(error.response?.data?.error || "Refresh failed");
-        }
+export const verifyToken = createAsyncThunk("auth/verifyToken", async (_, { rejectWithValue }) => {
+    try {
+        const response = await ApiService.post<{ user: IUser }>(API.auth.verify);
+        return response.data;
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data?.error || "Refresh failed");
     }
-)
+});
 
 const userSlice = createSlice({
     name: "user",
@@ -77,17 +65,17 @@ const userSlice = createSlice({
     extraReducers: (builder) => {
         // Login
         builder
-            .addCase(loginUser.pending, (state) => {
+            .addCase(userLogin.pending, (state) => {
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(loginUser.fulfilled, (state, action) => {
+            .addCase(userLogin.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
-                state.user = action.payload.user;
+                state.user = action.payload.data.user;
                 state.error = null;
             })
-            .addCase(loginUser.rejected, (state, action) => {
+            .addCase(userLogin.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string;
             });

@@ -33,7 +33,7 @@ export function useAuth() {
     try {
       setLoading(true);
       const res = await ApiService.get<AuthResponse>(API.auth.verify, {
-        withCredentials: true
+        withCredentials: true,
       });
 
       if (res.status === 200 && res.data.user) {
@@ -55,27 +55,27 @@ export function useAuth() {
     }
   }, [router, pathname]);
 
-  const login = useCallback(async (credentials: LoginCredentials) => {
-    try {
-      setLoading(true);
-      const res = await ApiService.post<AuthResponse>(
-        API.auth.login,
-        credentials
-      );
+  const login = useCallback(
+    async (credentials: LoginCredentials) => {
+      try {
+        setLoading(true);
+        const res = await ApiService.post<AuthResponse>(API.auth.login, credentials);
 
-      if (res.status === 200 && res.data.user) {
-        setIsAuthenticated(true);
-        setUser(res.data.user);
-        router.replace("/");
+        if (res.status === 200 && res.data.user) {
+          setIsAuthenticated(true);
+          setUser(res.data.user);
+          router.replace("/");
+        }
+      } catch (error) {
+        console.error("Login Error:", error);
+        setIsAuthenticated(false);
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Login Error:", error);
-      setIsAuthenticated(false);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [router]);
+    },
+    [router]
+  );
 
   const logout = useCallback(async () => {
     try {

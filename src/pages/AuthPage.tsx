@@ -12,8 +12,9 @@ import { API } from "@/utils/Api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useAppSelector } from "@/hooks/providers";
-import { userSelector } from "@/store/slices/userSlice";
+import { useAppDispatch, useAppSelector } from "@/hooks/providers";
+import { userLogin, userSelector } from "@/store/slices/userSlice";
+import Loading from "@/components/Loading";
 
 const loginSchema = z.object({
   Email: z.string().email("Please enter a valid email address"),
@@ -42,11 +43,12 @@ const signupSchema = z.object({
 });
 
 export default function AuthPage() {
-  const { isAuthenticated, isLoading } = useAppSelector(userSelector)
+  const { isAuthenticated, isLoading } = useAppSelector(userSelector);
   const [isSignup, setIsSignup] = useState(false);
   const [OTPLogin, setOTPLogin] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
   const form = useForm({
@@ -85,10 +87,8 @@ export default function AuthPage() {
       return;
     }
     try {
-
       setPhoneVerified(true);
       setShowOTP(false);
-
     } catch (error) {
       console.error("OTP verification failed:", error);
     }
@@ -97,20 +97,15 @@ export default function AuthPage() {
   const handleSubmit = async (data: z.infer<typeof loginSchema> | z.infer<typeof signupSchema>) => {
     try {
       if (isSignup) {
-        const response = await ApiService.post(API.auth.register, data);
-        if (response.status === 200) {
-          alert("Registration successful");
-        }
       } else {
-        const response = await ApiService.post(API.auth.login, data);
+        const response = await dispatch(userLogin(data))
+          .unwrap()
         if (response.status === 200) {
-          console.log('respons', response.status);
-        } else {
-          console.log('error', response.status);
+          router.push("/");
         }
       }
-    } catch (error) {
-      console.error("Auth error:", error);
+    } catch (error: any) {
+      console.error("Auth error:", error.response?.data || error.message);
     }
   };
 
@@ -127,6 +122,10 @@ export default function AuthPage() {
     }
   };
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <div className="flex h-screen w-full items-center justify-center bg-gray-100 overflow-y-hidden">
       {/* Brand Logo */}
@@ -137,7 +136,11 @@ export default function AuthPage() {
       <div className="w-full h-screen flex bg-white shadow-lg rounded-lg">
         {/* Left Side */}
         <div className="w-1/2 bg-white flex items-center justify-center">
-          <img src="/p1.jpg" alt="Login Illustration" className="img-fluid object-cover w-full h-full" />
+          <img
+            src="/p1.jpg"
+            alt="Login Illustration"
+            className="img-fluid object-cover w-full h-full"
+          />
         </div>
         {/* Right Side */}
         <div className="w-1/2 px-20 flex flex-col justify-center overflow-y-auto hide-scrollbar">
