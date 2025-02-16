@@ -1,30 +1,29 @@
-import { useAppDispatch, useAppSelector } from "@/hooks/providers";
-import { userSelector, verifyToken } from "@/store/slices/userSlice";
+import { useAppSelector } from "@/hooks/providers";
+import { userSelector } from "@/store/slices/userSlice";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Loading from "../custom/Loading";
 
 const RouteProvider = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, isLoading } = useAppSelector(userSelector);
-    const dispatch = useAppDispatch();
     const router = useRouter();
+    const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
     useEffect(() => {
-        dispatch(verifyToken());
-    }, [dispatch]);
-
-    useEffect(() => {
-        if (!isAuthenticated && !isLoading) {
-            router.replace("/login");
-            return;
+        if (!isLoading) {
+            setHasCheckedAuth(true);
+            if (!isAuthenticated) {
+                router.replace("/login");
+            }
         }
     }, [isAuthenticated, isLoading, router]);
 
-    if (isLoading || !isAuthenticated) {
+    // Show loading while authentication status is being checked
+    if (isLoading || !hasCheckedAuth) {
         return <Loading />;
     }
 
     return children;
-}
+};
 
-export default RouteProvider
+export default RouteProvider;
