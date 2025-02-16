@@ -130,11 +130,14 @@ export function Sidebar() {
         )}
       >
         <div className="flex items-center justify-between px-4 py-2 border-b">
-          {!isCollapsed ? (
-            <h1 className="text-lg font-semibold px-6 py-2">Portfolio Admin</h1>
-          ) : (
+          {isCollapsed ? (
             <div className="h-12 flex items-center justify-center">
-              <Image width={32} height={32} src="/logo.png" alt="" className="h-8 w-8" />
+              <Image width={32} height={32} src="/logo.jpg" alt="" className="h-8 w-8" />
+            </div>
+          ) : (
+            <div className="h-12 py-2 px-2 flex items-center justify-center">
+              <Image width={32} height={32} src="/logo.jpg" alt="" className="h-8 w-8" />
+              <h1 className="text-lg font-semibold">Portfolio Admin</h1>
             </div>
           )}
           <div className="opacity-0 lg:opacity-100 absolute -right-[16px] top-[12px] z-20 bg-white dark:bg-primary-foreground lg:visible">
@@ -152,10 +155,16 @@ export function Sidebar() {
         <ScrollArea className="flex-1">
           {menuItems.map((section, idx) => (
             <div key={idx} className="py-4">
-              {!isCollapsed && (
+              {!isCollapsed ? (
                 <div className="px-6 mb-2">
                   <p className="text-xs font-medium text-muted-foreground tracking-wider uppercase">
                     {section.section}
+                  </p>
+                </div>
+              ) : (
+                <div className="px-6 mb-2">
+                  <p className="text-xs font-medium text-muted-foreground tracking-wider uppercase">
+                    <Ellipsis className="h-4 w-4" />
                   </p>
                 </div>
               )}
