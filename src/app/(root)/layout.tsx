@@ -6,7 +6,7 @@ import { useAppSelector } from "@/hooks/providers";
 import { cn } from "@/lib/utils";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { isCollapsed } = useAppSelector(state => state.sidebar);
+  const { isCollapsed } = useAppSelector((state) => state.sidebar);
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />

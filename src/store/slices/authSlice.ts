@@ -31,6 +31,19 @@ export const userLogin = createAsyncThunk<AxiosResponse<{ user: IUser }>, LoginC
       const response = await ApiService.post<{ user: IUser }>(API.auth.login, credentials);
       return response;
     } catch (error: any) {
+      return rejectWithValue("Invalid email or password");
+    }
+  }
+);
+
+// register
+export const userRegister = createAsyncThunk<AxiosResponse<{ user: IUser }>, LoginCredentials>(
+  "auth/register",
+  async (credentials: LoginCredentials, { rejectWithValue }) => {
+    try {
+      const response = await ApiService.post<{ user: IUser }>(API.auth.register, credentials);
+      return response;
+    } catch (error: any) {
       return rejectWithValue(error.response?.data?.error || "Invalid email or password");
     }
   }
@@ -41,7 +54,7 @@ export const logout = createAsyncThunk("auth/logout", async (_, { rejectWithValu
     await ApiService.post(API.auth.logout);
     return null;
   } catch (error: any) {
-    return rejectWithValue(error.response?.data?.error || "Logout failed");
+    return rejectWithValue("Logout failed");
   }
 });
 
@@ -50,12 +63,24 @@ export const verifyToken = createAsyncThunk("auth/verifyToken", async (_, { reje
     const response = await ApiService.get<{ user: IUser }>(API.auth.verify);
     return response.data;
   } catch (error: any) {
-    return rejectWithValue(error.response?.data?.error || "Refresh failed");
+    return rejectWithValue("Verification failed");
   }
 });
 
-const userSlice = createSlice({
-  name: "user",
+export const refreshAccessToken = createAsyncThunk(
+  "auth/refreshToken",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await ApiService.post<{ user: IUser }>(API.auth.refreshToken);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue("Refresh failed");
+    }
+  }
+);
+
+const authSlice = createSlice({
+  name: "auth",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -80,6 +105,20 @@ const userSlice = createSlice({
         state.error = action.payload as string;
       });
 
+    builder
+      .addCase(userRegister.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(userRegister.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(userRegister.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
     // Logout
     builder
       .addCase(logout.pending, (state) => {
@@ -96,7 +135,7 @@ const userSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Refresh
+    // Verify Token
     builder
       .addCase(verifyToken.pending, (state) => {
         state.isLoading = true;
@@ -111,8 +150,24 @@ const userSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       });
+
+    // Refresh Token
+    builder
+      .addCase(refreshAccessToken.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(refreshAccessToken.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.error = null;
+      })
+      .addCase(refreshAccessToken.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
-export const userSelector = (state: RootState) => state.user;
-export default userSlice.reducer;
+export const authSelector = (state: RootState) => state.auth;
+export default authSlice.reducer;

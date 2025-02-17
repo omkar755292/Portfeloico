@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface SidebarState {
   isCollapsed: boolean;
@@ -11,7 +11,7 @@ const initialState: SidebarState = {
 };
 
 const sidebarSlice = createSlice({
-  name: 'sidebar',
+  name: "sidebar",
   initialState,
   reducers: {
     toggleSidebar: (state, action: PayloadAction<boolean>) => {
@@ -19,7 +19,7 @@ const sidebarSlice = createSlice({
     },
     toggleMobileSidebar: (state, action: PayloadAction<boolean>) => {
       state.isMobileOpen = action.payload;
-    }
+    },
   },
 });
 

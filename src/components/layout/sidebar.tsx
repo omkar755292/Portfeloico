@@ -15,7 +15,7 @@ import {
   Ellipsis,
   Home,
   ExternalLink,
-  Landmark
+  Landmark,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -37,9 +37,7 @@ const menuItems = [
   },
   {
     section: "Analytics & Marketing",
-    items: [
-      { icon: Landmark, label: "Marketing", href: "/marketing" },
-    ],
+    items: [{ icon: Landmark, label: "Marketing", href: "/marketing" }],
   },
 ];
 
@@ -71,9 +69,7 @@ const NavItem = ({ icon: Icon, label, href, isActive, isCollapsed }: NavItemProp
     return (
       <TooltipProvider>
         <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            {content}
-          </TooltipTrigger>
+          <TooltipTrigger asChild>{content}</TooltipTrigger>
           <TooltipContent side="right" className="font-medium">
             {label}
           </TooltipContent>
@@ -107,7 +103,11 @@ export function Sidebar() {
           dispatch(toggleSidebar(false));
         }}
       >
-        {isMobileOpen ? <ChevronsLeft className="h-4 w-4" /> : <ChevronsRight className="h-4 w-4" />}
+        {isMobileOpen ? (
+          <ChevronsLeft className="h-4 w-4" />
+        ) : (
+          <ChevronsRight className="h-4 w-4" />
+        )}
       </Button>
 
       {/* Backdrop for mobile */}
@@ -115,8 +115,8 @@ export function Sidebar() {
         <div
           className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
           onClick={() => {
-            dispatch(toggleMobileSidebar(false))
-            dispatch(toggleSidebar(true))
+            dispatch(toggleMobileSidebar(false));
+            dispatch(toggleSidebar(true));
           }}
         />
       )}
@@ -150,7 +150,11 @@ export function Sidebar() {
               variant="ghost"
               size="icon"
             >
-              {isCollapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
+              {isCollapsed ? (
+                <ChevronsRight className="h-4 w-4" />
+              ) : (
+                <ChevronsLeft className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>
@@ -200,9 +204,7 @@ export function Sidebar() {
                     <ExternalLink className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="right">
-                  Ratings & Feedback
-                </TooltipContent>
+                <TooltipContent side="right">Ratings & Feedback</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           ) : (

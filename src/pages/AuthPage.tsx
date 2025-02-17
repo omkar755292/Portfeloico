@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAppDispatch, useAppSelector } from "@/hooks/providers";
-import { userLogin, userSelector } from "@/store/slices/userSlice";
+import { userLogin, userRegister, authSelector, verifyToken } from "@/store/slices/authSlice";
 import Error from "@/components/custom/Error";
 
 const loginSchema = z.object({
@@ -22,9 +22,9 @@ const loginSchema = z.object({
 });
 
 const signupSchema = z.object({
-  FirstName: z.string().min(2, "Name must be at least 2 characters"),
-  MiddleName: z.string().min(2, "Name must be at least 2 characters"),
-  LastName: z.string().min(2, "Name must be at least 2 characters"),
+  FirstName: z.string().min(2, "First name must be at least 2 characters"),
+  // MiddleName: z.string().min(2, "Middle name must be at least 2 characters"),
+  LastName: z.string().min(2, "Last name must be at least 2 characters"),
   Email: z.string().email("Please enter a valid email address"),
   Password: z
     .string()
@@ -43,7 +43,7 @@ const signupSchema = z.object({
 });
 
 export default function AuthPage() {
-  const { isLoading, error } = useAppSelector(userSelector);
+  const { isLoading, error } = useAppSelector(authSelector);
   const dispatch = useAppDispatch();
   const [isSignup, setIsSignup] = useState(false);
   const [OTPLogin, setOTPLogin] = useState(false);
@@ -97,6 +97,10 @@ export default function AuthPage() {
   const handleSubmit = async (data: z.infer<typeof loginSchema> | z.infer<typeof signupSchema>) => {
     try {
       if (isSignup) {
+        const response = await dispatch(userRegister(data)).unwrap();
+        if (response.status === 201) {
+          await dispatch(verifyToken()).unwrap();
+        }
       } else {
         const response = await dispatch(userLogin(data)).unwrap();
         if (response.status === 200) {
@@ -153,6 +157,23 @@ export default function AuthPage() {
                 {form.formState.errors.FirstName && (
                   <p className="text-sm text-red-500 mt-1">
                     {form.formState.errors.FirstName.message}
+                  </p>
+                )}
+              </div>
+            )}
+            {isSignup && (
+              <div className="mb-4">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  placeholder="Enter your last name"
+                  className="mt-1 w-full"
+                  {...form.register("LastName")}
+                />
+                {form.formState.errors.LastName && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {form.formState.errors.LastName.message}
                   </p>
                 )}
               </div>

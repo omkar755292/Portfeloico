@@ -1,13 +1,12 @@
 "use client";
 
 import { useAppDispatch, useAppSelector } from "@/hooks/providers";
-import { userSelector, verifyToken } from "@/store/slices/userSlice";
+import { authSelector, verifyToken } from "@/store/slices/authSlice";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Loading from "../custom/Loading";
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAppSelector(userSelector);
+  const { isAuthenticated, isLoading } = useAppSelector(authSelector);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
