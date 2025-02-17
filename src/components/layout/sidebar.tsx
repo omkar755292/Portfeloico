@@ -9,11 +9,13 @@ import {
   Menu,
   X,
   LogOut,
-  ChevronLeft,
-  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   MessageSquare,
   CreditCard,
-  Ellipsis
+  Ellipsis,
+  Home,
+  ExternalLink
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -29,7 +31,8 @@ const menuItems = [
   {
     section: "Main",
     items: [
-      { icon: LayoutDashboard, label: "Dashboard", href: "/" },
+      { icon: Home, label: "Home", href: "/" },
+      { icon: LayoutDashboard, label: "Portal", href: "/portal" },
       { icon: Users, label: "Users", href: "/users" },
       { icon: MessageSquare, label: "Messages", href: "/messages" },
       { icon: CreditCard, label: "Billing", href: "/billing" },
@@ -129,25 +132,25 @@ export function Sidebar() {
           isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
-        <div className="flex items-center justify-between px-4 py-2 border-b">
+        <div className="flex items-center justify-between px-4 py-2">
           {isCollapsed ? (
-            <div className="h-12 flex items-center justify-center">
-              <Image width={32} height={32} src="/logo.jpg" alt="" className="h-8 w-8" />
-            </div>
+            <Link href="/" className="h-12 flex items-center justify-center">
+              <Image width={32} height={32} src="/calen.png" alt="" className="h-8 w-8" />
+            </Link>
           ) : (
-            <div className="h-12 py-2 px-2 flex items-center justify-center">
-              <Image width={32} height={32} src="/logo.jpg" alt="" className="h-8 w-8" />
+            <Link href="/" className="h-12 py-2 px-2 flex items-center justify-center">
+              <Image width={32} height={32} src="/calen.png" alt="" className="h-8 w-8" />
               <h1 className="text-lg font-semibold">Portfolio Admin</h1>
-            </div>
+            </Link>
           )}
           <div className="opacity-0 lg:opacity-100 absolute -right-[16px] top-[12px] z-20 bg-white dark:bg-primary-foreground lg:visible">
             <Button
               onClick={() => dispatch(toggleSidebar())}
               className="h-8 w-8 rounded-md"
-              variant="outline"
+              variant="ghost"
               size="icon"
             >
-              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              {isCollapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
             </Button>
           </div>
         </div>
@@ -184,7 +187,7 @@ export function Sidebar() {
           ))}
         </ScrollArea>
 
-        <div className="border-t p-4">
+        <div className="p-4">
           {isCollapsed ? (
             <TooltipProvider>
               <Tooltip delayDuration={0}>
@@ -192,23 +195,23 @@ export function Sidebar() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="w-full h-9"
-                    onClick={() => dispatch(logout())}
+                    className="w-full h-9 font-medium text-xs text-muted-foreground"
+                  // onClick={() => dispatch(logout())}
                   >
-                    <LogOut className="h-4 w-4" />
+                    <ExternalLink className="h-4 w-4 \" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="right">Logout</TooltipContent>
+                <TooltipContent side="right">Feedback</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           ) : (
             <Button
               variant="ghost"
-              className="w-full justify-start gap-2"
-              onClick={() => dispatch(logout())}
+              className="w-full justify-start gap-2 text-xs font-medium text-muted-foreground"
+            // onClick={() => dispatch(logout())}
             >
-              <LogOut className="h-4 w-4" />
-              Logout
+              <ExternalLink className="h-4 w-4" />
+              Feedback
             </Button>
           )}
         </div>

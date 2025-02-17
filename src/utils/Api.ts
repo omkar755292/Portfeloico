@@ -10,12 +10,12 @@ type EnvType = keyof typeof ENV;
 
 const URLS = {
   BASE: {
-    [ENV.LOCAL]: "http://localhost:5000",
+    [ENV.LOCAL]: "http://localhost:8000",
     [ENV.DEV]: "https://dev-api.example.com",
     [ENV.PROD]: "https://prod-api.example.com",
   },
   FRONTEND: {
-    [ENV.LOCAL]: "http://localhost:500",
+    [ENV.LOCAL]: "http://localhost:3000",
     [ENV.DEV]: "https://dev.example.com",
     [ENV.PROD]: "https://prod.example.com",
   },
