@@ -14,11 +14,11 @@ const sidebarSlice = createSlice({
   name: 'sidebar',
   initialState,
   reducers: {
-    toggleSidebar: (state) => {
-      state.isCollapsed = !state.isCollapsed;
+    toggleSidebar: (state, action: PayloadAction<boolean>) => {
+      state.isCollapsed = action.payload;
     },
-    toggleMobileSidebar: (state) => {
-      state.isMobileOpen = !state.isMobileOpen;
+    toggleMobileSidebar: (state, action: PayloadAction<boolean>) => {
+      state.isMobileOpen = action.payload;
     }
   },
 });

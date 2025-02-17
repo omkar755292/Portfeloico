@@ -8,19 +8,18 @@ import {
   Settings,
   Menu,
   X,
-  LogOut,
   ChevronsLeft,
   ChevronsRight,
   MessageSquare,
   CreditCard,
   Ellipsis,
   Home,
-  ExternalLink
+  ExternalLink,
+  Landmark
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { logout } from "@/store/slices/userSlice";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
@@ -39,9 +38,9 @@ const menuItems = [
     ],
   },
   {
-    section: "Settings",
+    section: "Analytics & Marketing",
     items: [
-      { icon: Settings, label: "Settings", href: "/settings" },
+      { icon: Landmark, label: "Marketing", href: "/marketing" },
     ],
   },
 ];
@@ -93,11 +92,10 @@ export function Sidebar() {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
 
-  // Load collapsed state from localStorage on mount
+  // Close mobile sidebar on route change
   useEffect(() => {
-    dispatch(toggleMobileSidebar());
+    dispatch(toggleMobileSidebar(false));
   }, [pathname, dispatch]);
-
 
   return (
     <>
@@ -106,25 +104,29 @@ export function Sidebar() {
         variant="ghost"
         size="icon"
         className="fixed top-4 left-4 z-50 md:hidden"
-        onClick={() => dispatch(toggleMobileSidebar())}
+        onClick={() => {
+          dispatch(toggleMobileSidebar(!isMobileOpen));
+          dispatch(toggleSidebar(false));
+        }}
       >
-        {isMobileOpen ? <X /> : <Menu />}
+        {isMobileOpen ? <ChevronsLeft className="h-4 w-4" /> : <ChevronsRight className="h-4 w-4" />}
       </Button>
 
       {/* Backdrop for mobile */}
-      {
-        isMobileOpen && (
-          <div
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
-            onClick={() => dispatch(toggleMobileSidebar())}
-          />
-        )
-      }
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => {
+            dispatch(toggleMobileSidebar(false))
+            dispatch(toggleSidebar(true))
+          }}
+        />
+      )}
 
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed top-0 left-0 h-full bg-background border-r transition-all duration-300",
+          "fixed top-0 left-0 h-full shadow bg-background border-r transition-all duration-300",
           "z-40 flex flex-col",
           isCollapsed ? "w-16" : "w-64",
           // Mobile styles
@@ -145,7 +147,7 @@ export function Sidebar() {
           )}
           <div className="opacity-0 lg:opacity-100 absolute -right-[16px] top-[12px] z-20 bg-white dark:bg-primary-foreground lg:visible">
             <Button
-              onClick={() => dispatch(toggleSidebar())}
+              onClick={() => dispatch(toggleSidebar(!isCollapsed))}
               className="h-8 w-8 rounded-md"
               variant="ghost"
               size="icon"
@@ -196,22 +198,22 @@ export function Sidebar() {
                     variant="ghost"
                     size="icon"
                     className="w-full h-9 font-medium text-xs text-muted-foreground"
-                  // onClick={() => dispatch(logout())}
                   >
-                    <ExternalLink className="h-4 w-4 \" />
+                    <ExternalLink className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="right">Feedback</TooltipContent>
+                <TooltipContent side="right">
+                  Ratings & Feedback
+                </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           ) : (
             <Button
               variant="ghost"
               className="w-full justify-start gap-2 text-xs font-medium text-muted-foreground"
-            // onClick={() => dispatch(logout())}
             >
               <ExternalLink className="h-4 w-4" />
-              Feedback
+              Ratings & Feedback
             </Button>
           )}
         </div>
