@@ -32,8 +32,6 @@ const menuItems = [
     items: [
       { icon: Home, label: "Home", href: "/" },
       { icon: LayoutDashboard, label: "Portal", href: "/portal" },
-      { icon: Users, label: "Users", href: "/users" },
-      { icon: MessageSquare, label: "Messages", href: "/messages" },
       { icon: CreditCard, label: "Billing", href: "/billing" },
     ],
   },
